@@ -4,40 +4,86 @@ const leaderRouter = express.Router();
 
 leaderRouter.use(bodyParser.json());
 
+const Leader = require('../models/leaders')
+
 leaderRouter.route('/')
-.all((req,res,next)=>{
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-    next();
-})
 .get((req,res,next)=>{
-    res.end("A GET req sent to Leaders page .");
+    Leader.find({})
+    .then((leader)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(leader);
+    },(err)=>next(err))
+    .catch((err)=>next(err));
 })
 .post((req,res,next)=>{
-    res.end("Will add the leader "+ req.body.name );
+    Leader.create(req.body)
+    .then((leader)=> {
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(leader);
+        console.log('leader added :' + leader.name);
+    },(err)=> next(err))
+    .catch((err)=>next(err));
 })
 .put((req,res,next)=>{
     res.statusCode = 403;
-    res.end("PUT operation not permitted ");
+    res.end("PUT operation not permitted on /leaders");
 })
 .delete((req,res,next)=>{
-    res.end("DELETING ALL !!!!")
+    Leader.remove({})
+    .then((resp)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(resp);
+    },(err)=> next(err))
+    .catch((err)=>next(err));
 });
 
 
 leaderRouter.route('/:leaderId')
 .get((req,res,next)=>{
-    res.end("GETTING info of leader "+ req.params.leaderId );
+    Leader.findById(req.params.leaderId)
+    .then((lead) =>{
+        if(lead!=null){
+            res.statusCode=200;
+            res.setHeader('Content-Type','application/json');
+            res.json(lead);
+        }
+        else{
+            err = new Error('Leader ' + req.params.leaderId+ 'not found' );
+            err.status = 404;
+            return next(err);
+        }
+    },(err)=>next(err))
+    .catch((err)=>next(err));
 })
 .post((req,res,next)=>{
     res.statusCode = 403;
-    res.end("POST OPERSTION NOT PERMITTED");
+    res.end("POST OPERSTION NOT PERMITTED on /leaders/" + req.params.leaderId);
 })
 .put((req,res,next)=>{
-    res.end("UPDATING VALUES AND ADATA");
+    Leader.findByIdAndUpdate(req.params.leaderId,{
+        $set: req.body
+    },{
+        //for timestamp
+        new: true
+    })
+    .then((lead)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(lead);
+    },(err)=>next(err))
+    .catch((err)=>next(err));
 })
 .delete((req,res,next)=>{
-    res.end("DELETING ID : "+req.params.leaderId);
+    Leader.findByIdAndRemove(req.params.leaderId)
+    .then((resp)=>{
+        res.statusCode=200;
+        res.setHeader('Content-Type','application/json');
+        res.json(resp);
+    },(err)=>next(err))
+    .catch((err)=>next(err));
 });
 
 module.exports = leaderRouter;
