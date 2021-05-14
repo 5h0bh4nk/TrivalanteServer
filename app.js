@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
-var FileStore = require('session-file-store');
+var FileStore = require('session-file-store')(session);
 
 
 
@@ -44,10 +44,10 @@ app.use(session({
 }))
 
 function auth(req,res,next){
-  console.log(req.signedCookies);
+  console.log(req.session);
   var authHeader = req.headers.authorization;
 
-  if(!req.signedCookies.user) {
+  if(!req.session.user) {
       if(!authHeader){
         var err = new Error('You are not authenticated!');
     
@@ -62,7 +62,7 @@ function auth(req,res,next){
       var password=auth[1];
     
       if(username==='admin' && password==='password'){
-        res.cookie('user', 'admin', { signed: 'true'});
+        req.session.user = 'admin';
 
         next();
       }
@@ -75,7 +75,7 @@ function auth(req,res,next){
       }
   }
   else{
-      if(req.signedCookies.user==='admin')
+      if(req.session.user==='admin')
       next();
       else{
         var err = new Error('You are not authenticated!');
