@@ -7,6 +7,7 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
 var authenticate = require('./authenticate');
+var config = require('./config');
 
 
 var indexRouter = require('./routes/index');
@@ -19,7 +20,7 @@ const mongoose = require('mongoose');
 
 const Dishes = require('./models/dishes');
 
-const url = 'mongodb://127.0.0.1:27017/Trivalent';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then((db) =>{
@@ -36,37 +37,37 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 //app.use(cookieParser('12344-67891-12345-54321'));
-app.use(session({
-  name: 'session-id',
-  secret: '12345-54321-12345',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore()
-}));
+// app.use(session({
+//   name: 'session-id',
+//   secret: '12345-54321-12345',
+//   saveUninitialized: false,
+//   resave: false,
+//   store: new FileStore()
+// }));
 
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-function auth(req,res,next){
-  console.log(req.session);
+// function auth(req,res,next){
+//   console.log(req.session);
 
-  if(!req.user) {
-      var err = new Error('You are not authenticated!');
+//   if(!req.user) {
+//       var err = new Error('You are not authenticated!');
 
-      err.status=401;
-      return next(err);
-  }
-  else{
-      next();
-  }  
-}
+//       err.status=401;
+//       return next(err);
+//   }
+//   else{
+//       next();
+//   }  
+// }
 
+// app.use(auth);
 
-
-app.use(auth);
+//leaving access to public folders
 app.use(express.static(path.join(__dirname, 'public')));
 
 
