@@ -6,8 +6,14 @@ var passport = require('passport');
 var authenticate = require('../authenticate');
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+router.get('/',authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {
+    User.find({})
+    .then((users)=>{
+      res.statusCode=200;
+      res.setHeader('Content-type','application/json');
+      res.json(users);
+    },(err)=>next(err))
+    .catch((err)=>next(err));
 });
 
 router.post('/signup', function(req,res,next){
@@ -49,7 +55,7 @@ router.post('/login', passport.authenticate('local'), (req, res, next)=>{
     res.json({status: 'Succesully logged in !!',success: true, token: token});
 });
 
-router.get('/logout', (req, res) => {
+router.get('/logout', (req, res, next) => {
   if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
