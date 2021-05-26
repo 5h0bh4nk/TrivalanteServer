@@ -12,11 +12,13 @@ var config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var commentRouter = require('./routes/commentRouter');
 const favouriteRouter = require('./routes/favouriteRouter');
 const dishRouter = require('./routes/dishRouter');
 const leaderRouter = require('./routes/leaderRouter');
 const promoRouter = require('./routes/promoRouter');
 const uploadRouter = require('./routes/uploadRouter');
+
 
 const mongoose = require('mongoose');
 
@@ -81,7 +83,7 @@ app.use('/users', usersRouter);
 //leaving access to public folders
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use('/comments',commentRouter);
 app.use('/dishes', dishRouter);
 app.use('/leaders',leaderRouter);
 app.use('/promos',promoRouter);
